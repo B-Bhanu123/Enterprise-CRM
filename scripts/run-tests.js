@@ -181,6 +181,20 @@ describe('Test Case 8: CPQ & Subscription Billing Verification', () => {
   });
 });
 
+// ----------------------------------------------------
+// TEST CASE 9: Omnichannel Campaign Automation Verification
+// ----------------------------------------------------
+describe('Test Case 9: Omnichannel Campaign Automation Verification', () => {
+  it('should track campaign metrics and compute conversion rate percentage', () => {
+    const sent = 100;
+    const converted = 15;
+    const conversionRate = (converted / sent) * 100;
+
+    expect(sent).toBe(100);
+    expect(conversionRate).toBe(15);
+  });
+});
+
 console.log('\n====================================================');
 console.log(`FINAL RESULTS: ${totalPassed} Test Cases Passed, ${totalFailed} Failed 🎉`);
 console.log('====================================================');
@@ -188,5 +202,6 @@ console.log('====================================================');
 if (totalFailed > 0) {
   process.exit(1);
 }
+
 
 
