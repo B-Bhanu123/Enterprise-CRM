@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OmniCRM - Enterprise Sales & Analytics Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg-dark: #0b0f19;
+      --bg-card: rgba(22, 30, 49, 0.75);
+      --bg-card-hover: rgba(30, 41, 69, 0.85);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+      --accent-blue: #3b82f6;
+      --accent-green: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Sidebar */
+    aside {
+      width: 280px;
+      background: #111827;
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem 1rem;
+      z-index: 10;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .brand-logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: var(--accent-gradient);
+      display: grid;
+      place-items: center;
+      font-size: 1.25rem;
+      font-weight: 800;
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+    }
+
+    .brand-title h2 { font-size: 1.15rem; font-weight: 700; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .brand-title p { font-size: 0.75rem; color: var(--text-muted); }
+
+    .nav-list { display: flex; flex-direction: column; gap: 0.5rem; }
+
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.875rem;
+      padding: 0.85rem 1rem;
+      border-radius: 10px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      font-weight: 500;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+    }
+
+    .nav-btn:hover { background: rgba(255, 255, 255, 0.05); color: #fff; }
+    .nav-btn.active { background: var(--accent-gradient); color: #fff; font-weight: 600; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35); }
+
+    /* Main Container */
+    main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.08), transparent 40%); }
+
+    /* Navbar */
+    header {
+      height: 70px;
+      padding: 0 2rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(17, 24, 39, 0.8);
+      backdrop-filter: blur(10px);
+    }
+
+    .user-profile { display: flex; align-items: center; gap: 1rem; }
+    .avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--accent-gradient); display: grid; place-items: center; font-weight: 700; }
+
+    /* Content Area */
+    .view-section { padding: 2rem; display: none; }
+    .view-section.active { display: block; animation: fadeIn 0.3s ease; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Glass Cards */
+    .glass-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .grid-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+
+    .metric-title { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .metric-value { font-size: 2rem; font-weight: 800; margin: 0.4rem 0; }
+    
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .badge-success { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+    .badge-hot { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .badge-warm { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+
+    /* Table */
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--border-color); }
+    th { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; }
+    tbody tr:hover { background: var(--bg-card-hover); }
+
+    /* Kanban Board */
+    .kanban-board { display: flex; gap: 1.5rem; overflow-x: auto; padding-bottom: 1rem; }
+    .kanban-col { flex: 0 0 300px; background: rgba(17, 24, 39, 0.6); border: 1px solid var(--border-color); border-radius: 14px; padding: 1rem; }
+    .kanban-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 1rem; margin-top: 1rem; cursor: pointer; transition: transform 0.2s ease; }
+    .kanban-card:hover { transform: translateY(-2px); border-color: var(--accent-blue); }
+
+    /* Action Button */
+    .btn-action {
+      background: var(--accent-gradient);
+      color: white;
+      border: none;
+      padding: 0.65rem 1.25rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+      transition: opacity 0.2s;
+    }
+    .btn-action:hover { opacity: 0.9; }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside>
+    <div class="brand">
+      <div class="brand-logo">⚡</div>
+      <div class="brand-title">
+        <h2>OmniCRM</h2>
+        <p>Enterprise Platform v1.0</p>
+      </div>
+    </div>
+
+    <nav class="nav-list">
+      <button class="nav-btn active" onclick="switchTab('dashboard', this)">
+        <span>📊</span> Executive Dashboard
+      </button>
+      <button class="nav-btn" onclick="switchTab('leads', this)">
+        <span>🎯</span> Leads & Prospecting
+      </button>
+      <button class="nav-btn" onclick="switchTab('deals', this)">
+        <span>💼</span> Sales Pipeline Kanban
+      </button>
+      <button class="nav-btn" onclick="switchTab('tickets', this)">
+        <span>🎧</span> Support Desk & SLA
+      </button>
+      <button class="nav-btn" onclick="switchTab('workflows', this)">
+        <span>⚙️</span> Workflow Engine
+      </button>
+    </nav>
+  </aside>
+
+  <!-- Main Workspace -->
+  <main>
+    <!-- Header -->
+    <header>
+      <div>
+        <span style="color: var(--text-muted); font-size: 0.85rem;">Tenant Domain:</span>
+        <strong style="color: #fff; margin-left: 0.4rem;">acme-global.enterprisecrm.com</strong>
+      </div>
+      <div class="user-profile">
+        <span class="badge badge-success">ADMINISTRATOR</span>
+        <div class="avatar">SA</div>
+      </div>
+    </header>
+
+    <!-- 1. Executive Dashboard View -->
+    <section id="dashboard" class="view-section active">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <div>
+          <h1 style="font-size: 1.75rem; font-weight: 800;">Executive Performance Summary</h1>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Real-time pipeline forecast, ARR metrics, and SLA status.</p>
+        </div>
+        <button class="btn-action" onclick="refreshDashboard()">🔄 Refresh Realtime Feed</button>
+      </div>
+
+      <!-- KPI Grid -->
+      <div class="grid-4">
+        <div class="glass-card">
+          <span class="metric-title">Total Active Pipeline</span>
+          <div className="metric-value" id="kpi-pipeline" style="font-size: 2rem; font-weight: 800; margin: 0.4rem 0;">$4,850,000</div>
+          <span class="badge badge-success">+18.4% vs last Qtr</span>
+        </div>
+        <div class="glass-card">
+          <span class="metric-title">Weighted Sales Forecast</span>
+          <div className="metric-value" id="kpi-forecast" style="font-size: 2rem; font-weight: 800; margin: 0.4rem 0;">$2,410,000</div>
+          <span class="badge badge-warm">60% Probability Avg</span>
+        </div>
+        <div class="glass-card">
+          <span class="metric-title">Closed Won ARR</span>
+          <div className="metric-value" id="kpi-closed" style="font-size: 2rem; font-weight: 800; margin: 0.4rem 0;">$3,200,000</div>
+          <span class="badge badge-success">68.4% Win Rate</span>
+        </div>
+        <div class="glass-card">
+          <span class="metric-title">Active Leads</span>
+          <div className="metric-value" id="kpi-leads" style="font-size: 2rem; font-weight: 800; margin: 0.4rem 0;">1,248</div>
+          <span class="badge badge-hot">342 Hot Rating</span>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="grid-2">
+        <div class="glass-card">
+          <h3 style="margin-bottom: 1rem;">Revenue Projections & Monthly Pipeline Growth</h3>
+          <canvas id="revenueChart" height="130"></canvas>
+        </div>
+        <div class="glass-card">
+          <h3 style="margin-bottom: 1rem;">Sales Funnel Stage Distribution</h3>
+          <canvas id="funnelChart" height="220"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Leads View -->
+    <section id="leads" class="view-section">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <div>
+          <h1 style="font-size: 1.75rem; font-weight: 800;">Lead Intelligence & Scoring</h1>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Multi-factor lead scoring based on firmographics and engagement.</p>
+        </div>
+        <button class="btn-action" onclick="addMockLead()">+ Add New Lead</button>
+      </div>
+
+      <div class="glass-card">
+        <table>
+          <thead>
+            <tr>
+              <th>Lead Contact</th>
+              <th>Company Account</th>
+              <th>Job Title</th>
+              <th>Source</th>
+              <th>Lead Score</th>
+              <th>Rating</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="lead-table-body">
+            <tr>
+              <td><strong>Sarah Jenkins</strong><br><span style="font-size: 0.8rem; color: var(--text-muted);">sjenkins@globaltech.com</span></td>
+              <td>Global Tech Solutions</td>
+              <td>VP of Infrastructure</td>
+              <td>WEBSITE</td>
+              <td><strong style="color: #f87171;">85</strong></td>
+              <td><span class="badge badge-hot">HOT</span></td>
+              <td><button class="btn-action" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="alert('Lead converted to Deal Pipeline!')">Convert to Deal</button></td>
+            </tr>
+            <tr>
+              <td><strong>Michael Chang</strong><br><span style="font-size: 0.8rem; color: var(--text-muted);">mchang@apexfinance.io</span></td>
+              <td>Apex Financial Group</td>
+              <td>Director of IT Operations</td>
+              <td>PAID_CAMPAIGN</td>
+              <td><strong style="color: #fbbf24;">62</strong></td>
+              <td><span class="badge badge-warm">WARM</span></td>
+              <td><button class="btn-action" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="alert('Lead converted to Deal Pipeline!')">Convert to Deal</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 3. Deals Kanban View -->
+    <section id="deals" class="view-section">
+      <h1 style="font-size: 1.75rem; font-weight: 800; margin-bottom: 0.5rem;">Sales Pipeline Kanban</h1>
+      <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Visual deal progression across weighted probability stages.</p>
+
+      <div class="kanban-board">
+        <div class="kanban-col">
+          <div style="display: flex; justify-content: space-between; font-weight: 700; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+            <span>DISCOVERY (10%)</span>
+            <span>$450,000</span>
+          </div>
+          <div class="kanban-card">
+            <h4 style="font-weight: 600;">Cloud Infrastructure Expansion</h4>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0.4rem 0;">Acme Global • $150,000</p>
+            <span class="badge badge-warm">Expected: Oct 15</span>
+          </div>
+        </div>
+
+        <div class="kanban-col">
+          <div style="display: flex; justify-content: space-between; font-weight: 700; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+            <span>PROPOSAL (60%)</span>
+            <span>$1,200,000</span>
+          </div>
+          <div class="kanban-card">
+            <h4 style="font-weight: 600;">Enterprise Security Suite</h4>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0.4rem 0;">Apex Financial • $350,000</p>
+            <span class="badge badge-warm">Expected: Sep 30</span>
+          </div>
+        </div>
+
+        <div class="kanban-col">
+          <div style="display: flex; justify-content: space-between; font-weight: 700; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+            <span>CLOSED WON (100%)</span>
+            <span>$3,200,000</span>
+          </div>
+          <div class="kanban-card" style="border-left: 4px solid var(--accent-green);">
+            <h4 style="font-weight: 600;">Global License Contract</h4>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0.4rem 0;">CyberTech Inc • $800,000</p>
+            <span class="badge badge-success">CLOSED WON</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Support Desk View -->
+    <section id="tickets" class="view-section">
+      <h1 style="font-size: 1.75rem; font-weight: 800; margin-bottom: 0.5rem;">Support Queue & Real-time SLA Monitoring</h1>
+      <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Priority-based response SLA clocks and CSAT feedback.</p>
+
+      <div class="glass-card">
+        <table>
+          <thead>
+            <tr>
+              <th>Ticket #</th>
+              <th>Subject & Issue Description</th>
+              <th>Priority</th>
+              <th>Category</th>
+              <th>Response SLA Clock</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>TICK-84920</strong></td>
+              <td>Okta SAML 2.0 Single Sign-On Integration Error<br><span style="font-size: 0.8rem; color: var(--text-muted);">Customer receiving 403 Forbidden callback</span></td>
+              <td><span class="badge badge-hot">HIGH</span></td>
+              <td>TECHNICAL</td>
+              <td><strong style="color: #34d399;">3h 14m remaining</strong></td>
+              <td><span class="badge badge-warm">IN_PROGRESS</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 5. Workflows View -->
+    <section id="workflows" class="view-section">
+      <h1 style="font-size: 1.75rem; font-weight: 800; margin-bottom: 0.5rem;">Event-Driven Workflow Automation Engine</h1>
+      <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Trigger-action rules for automated task assignment and alerts.</p>
+
+      <div class="glass-card" style="margin-bottom: 1.5rem;">
+        <h3 style="margin-bottom: 0.5rem;">⚡ Rule #1: Auto Urgent Task for High Score Leads</h3>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">Trigger: <code>lead.created</code> | Condition: <code>score >= 70</code> | Action: <code>CREATE_TASK (Priority: URGENT)</code></p>
+        <span class="badge badge-success">ACTIVE & RUNNING</span>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Tab Switcher
+    function switchTab(tabId, btnElement) {
+      document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+      
+      document.getElementById(tabId).classList.add('active');
+      if (btnElement) btnElement.classList.add('active');
+    }
+
+    // Add Mock Lead Functionality
+    function addMockLead() {
+      const tbody = document.getElementById('lead-table-body');
+      const tr = document.createElement('tr');
+      const id = Math.floor(Math.random() * 1000);
+      tr.innerHTML = `
+        <td><strong>David Miller ${id}</strong><br><span style="font-size: 0.8rem; color: var(--text-muted);">dmiller${id}@cloudtech.io</span></td>
+        <td>CloudTech Systems</td>
+        <td>Chief Technology Officer</td>
+        <td>REFERRAL</td>
+        <td><strong style="color: #f87171;">92</strong></td>
+        <td><span class="badge badge-hot">HOT</span></td>
+        <td><button class="btn-action" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="alert('Lead converted!')">Convert to Deal</button></td>
+      `;
+      tbody.prepend(tr);
+    }
+
+    // Refresh Dashboard Feed
+    function refreshDashboard() {
+      fetch('/api/v1/analytics/summary')
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.data) {
+            document.getElementById('kpi-pipeline').innerText = '$' + data.data.totalPipelineARR.toLocaleString();
+            document.getElementById('kpi-forecast').innerText = '$' + (data.data.totalPipelineARR * 0.6).toLocaleString();
+            document.getElementById('kpi-closed').innerText = '$' + data.data.totalClosedWonARR.toLocaleString();
+            document.getElementById('kpi-leads').innerText = data.data.totalLeads.toLocaleString();
+          }
+        }).catch(() => {});
+    }
+
+    // Initialize Charts on Load
+    window.addEventListener('DOMContentLoaded', () => {
+      // 1. Revenue Chart
+      const ctxRev = document.getElementById('revenueChart').getContext('2d');
+      new Chart(ctxRev, {
+        type: 'line',
+        data: {
+          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
+          datasets: [{
+            label: 'Monthly ARR ($)',
+            data: [1200000, 1500000, 1900000, 2400000, 2800000, 3200000, 3900000, 4850000],
+            borderColor: '#6366f1',
+            backgroundColor: 'rgba(99, 102, 241, 0.15)',
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { labels: { color: '#94a3b8' } } },
+          scales: {
+            x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+            y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+          }
+        }
+      });
+
+      // 2. Funnel Chart
+      const ctxFunnel = document.getElementById('funnelChart').getContext('2d');
+      new Chart(ctxFunnel, {
+        type: 'doughnut',
+        data: {
+          labels: ['Discovery', 'Qualification', 'Proposal', 'Negotiation', 'Closed Won'],
+          datasets: [{
+            data: [45, 30, 20, 15, 68],
+            backgroundColor: ['#3b82f6', '#8b5cf6', '#f59e0b', '#ec4899', '#10b981']
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8' } } }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
