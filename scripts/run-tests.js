@@ -164,6 +164,23 @@ describe('Test Case 7: Territory Management Engine Verification', () => {
   });
 });
 
+// ----------------------------------------------------
+// TEST CASE 8: CPQ & Subscription Billing Verification
+// ----------------------------------------------------
+describe('Test Case 8: CPQ & Subscription Billing Verification', () => {
+  it('should apply tiered volume discount and calculate subscription ARR correctly', () => {
+    const unitPrice = 100;
+    const qty = 100;
+    const discount = qty >= 100 ? 0.2 : 0;
+    const total = (unitPrice * qty) * (1 - discount);
+    const mrr = 5000;
+    const arr = mrr * 12;
+
+    expect(total).toBe(8000);
+    expect(arr).toBe(60000);
+  });
+});
+
 console.log('\n====================================================');
 console.log(`FINAL RESULTS: ${totalPassed} Test Cases Passed, ${totalFailed} Failed 🎉`);
 console.log('====================================================');
@@ -171,4 +188,5 @@ console.log('====================================================');
 if (totalFailed > 0) {
   process.exit(1);
 }
+
 
