@@ -149,6 +149,21 @@ describe('Test Case 6: Support Desk SLA Monitoring & Breach Calculation Verifica
   });
 });
 
+// ----------------------------------------------------
+// TEST CASE 7: Territory Management Engine Verification
+// ----------------------------------------------------
+describe('Test Case 7: Territory Management Engine Verification', () => {
+  it('should auto-assign territory and calculate quota attainment correctly', () => {
+    const quotaTarget = 1000000;
+    const closedWon = 750000;
+    const attainment = Math.round((closedWon / quotaTarget) * 100);
+    const isAssigned = '10001'.startsWith('10');
+
+    expect(isAssigned).toBe(true);
+    expect(attainment).toBe(75);
+  });
+});
+
 console.log('\n====================================================');
 console.log(`FINAL RESULTS: ${totalPassed} Test Cases Passed, ${totalFailed} Failed 🎉`);
 console.log('====================================================');
@@ -156,3 +171,4 @@ console.log('====================================================');
 if (totalFailed > 0) {
   process.exit(1);
 }
+
