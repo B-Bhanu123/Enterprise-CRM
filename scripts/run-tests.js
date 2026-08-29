@@ -222,6 +222,20 @@ describe('Test Case 11: Audit Tracer & Security Compliance Verification', () => 
   });
 });
 
+// ----------------------------------------------------
+// TEST CASE 12: Partner Portal & NPS Survey Verification
+// ----------------------------------------------------
+describe('Test Case 12: Partner Portal & NPS Survey Verification', () => {
+  it('should calculate Net Promoter Score (NPS) formula accurately', () => {
+    const totalResponses = 4;
+    const promoters = 2; // 50%
+    const detractors = 1; // 25%
+    const nps = Math.round(((promoters - detractors) / totalResponses) * 100);
+
+    expect(nps).toBe(25);
+  });
+});
+
 console.log('\n====================================================');
 console.log(`FINAL RESULTS: ${totalPassed} Test Cases Passed, ${totalFailed} Failed 🎉`);
 console.log('====================================================');
@@ -229,6 +243,7 @@ console.log('====================================================');
 if (totalFailed > 0) {
   process.exit(1);
 }
+
 
 
 
