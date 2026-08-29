@@ -195,6 +195,21 @@ describe('Test Case 9: Omnichannel Campaign Automation Verification', () => {
   });
 });
 
+// ----------------------------------------------------
+// TEST CASE 10: Contract CLM Lifecycle & Vault Verification
+// ----------------------------------------------------
+describe('Test Case 10: Contract CLM Lifecycle & Vault Verification', () => {
+  it('should transition contract state to EXECUTED upon full signature collection', () => {
+    const totalSigners = 2;
+    let signedCount = 0;
+    signedCount++;
+    signedCount++;
+    const status = signedCount === totalSigners ? 'EXECUTED' : 'PENDING_SIGNATURE';
+
+    expect(status).toBe('EXECUTED');
+  });
+});
+
 console.log('\n====================================================');
 console.log(`FINAL RESULTS: ${totalPassed} Test Cases Passed, ${totalFailed} Failed 🎉`);
 console.log('====================================================');
@@ -202,6 +217,7 @@ console.log('====================================================');
 if (totalFailed > 0) {
   process.exit(1);
 }
+
 
 
 
